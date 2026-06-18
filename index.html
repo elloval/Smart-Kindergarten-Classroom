@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Kindergarten Classroom</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ─── SIDEBAR ─── -->
+<nav id="sidebar">
+  <div class="logo">
+    <img src="assets/logo.png" alt="Smart Kindergarten Classroom Logo" style="width:120px;height:120px;border-radius:0;object-fit:contain;">
+  </div>
+  <button class="nav-btn active" id="nav-dashboard" onclick="showPage('dashboard')">
+    <span class="nav-icon">🏠</span> Dashboard
+  </button>
+  <button class="nav-btn" id="nav-attivita" onclick="showPage('attivita')">
+    <span class="nav-icon">🎮</span> Attività
+  </button>
+  <button class="nav-btn" id="nav-report" onclick="showPage('report')">
+    <span class="nav-icon">📊</span> Report
+  </button>
+</nav>
+
+<!-- ─── MAIN CONTENT ─── -->
+<main id="main">
+
+  <!-- ════════════ DASHBOARD PAGE ════════════ -->
+  <div id="page-dashboard" class="page active">
+    <div class="topbar">
+      <div class="topbar-title">DASHBOARD</div>
+      <div class="topbar-user">
+        <div class="user-info">
+          <div class="user-name" id="welcome-name">Benvenuta Chiara</div>
+          <div class="user-role" id="welcome-date">Insegnante · 16/06/2026</div>
+        </div>
+        <div style="width:38px;height:38px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid var(--blue);">👩‍🏫</div>
+      </div>
+    </div>
+
+    <div class="section-label">PANORAMICA CLASSE</div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Mood Classe</div>
+        <div class="kpi-main">
+          <div class="kpi-icon-wrap">😊</div>
+          <div>
+            <span class="kpi-badge badge-green">SERENO</span>
+            <div class="kpi-sub">Stabile nell'ultima ora</div>
+          </div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Livello Rumore</div>
+        <div class="kpi-main">
+          <div class="kpi-icon-wrap" style="font-size:32px;">🔊</div>
+          <div>
+            <span class="kpi-badge badge-orange" id="noise-badge">ALTO</span>
+            <div class="kpi-sub" style="color:var(--orange);" id="noise-sub">⚠️ Superata soglia 60s</div>
+          </div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Concentrazione</div>
+        <div class="kpi-main">
+          <div class="kpi-icon-wrap" style="font-size:32px;">🎯</div>
+          <div>
+            <span class="kpi-badge badge-yellow">MEDIA</span>
+            <div class="kpi-sub">Focus sui banchi smart</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alert Banner -->
+    <div id="alert-banner">
+      <div class="alert-left">
+        <div class="alert-icon">⚡</div>
+        <div class="alert-texts">
+          <div class="alert-title">PROACTIVE SYSTEM SUGGESTION</div>
+          <div class="alert-body">Rilevato picco di rumore continuo per oltre 60s.</div>
+          <div class="alert-sub">Suggerimento: Propaga un'attività rilassante per incanalare l'energia del gruppo.</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="alert-card-compact">
+          <div class="compact-emoji">🧩</div>
+          <div class="compact-info">
+            <span class="compact-cat">Calmanti</span>
+            <div class="compact-name">Puzzle lento</div>
+            <div class="compact-dur">⏱ 10 min</div>
+          </div>
+        </div>
+        <button class="btn-avvia" style="background:#3b82f6;" onclick="openModal('Puzzle lento','🧩','Calmanti','cat-calmanti','bar-calmanti',10,'Ricomponi il puzzle in silenzio')">Avvia</button>
+        <button class="btn-ignore" title="Ignora suggerimento" onclick="dismissAlert()">✕</button>
+      </div>
+    </div>
+
+    <!-- Heatmap -->
+    <div class="heatmap-section">
+      <div class="heatmap-title">HEATMAP SPAZIALE DEL SENTIMENT CLASSE</div>
+      <div class="heatmap-sub">Disposizione dei banchi interattivi e rilevamento dell'agitazione nei gruppi</div>
+      <div class="heatmap-container" style="padding-bottom:26%;">
+        <canvas id="heatmap-canvas"></canvas>
+      </div>
+    </div>
+  </div><!-- /dashboard -->
+
+
+  <!-- ════════════ ATTIVITÀ PAGE ════════════ -->
+  <div id="page-attivita" class="page">
+    <div class="topbar">
+      <div class="topbar-title">ATTIVITÀ</div>
+      <div class="topbar-user">
+        <div class="user-info">
+          <div class="user-name">Benvenuta Chiara</div>
+          <div class="user-role">Insegnante · 16/06/2026</div>
+        </div>
+        <div style="width:38px;height:38px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid var(--blue);">👩‍🏫</div>
+      </div>
+    </div>
+
+    <div class="suggested-label">SUGGERITE DAL SISTEMA</div>
+    <div class="suggested-row" id="suggested-grid"></div>
+
+    <div class="search-row">
+      <input class="search-input" placeholder="Cerca un'attività" id="activity-search" oninput="filterActivities()">
+      <button class="btn-filtri" id="btn-filtri-act" onclick="toggleFilterPanel('filter-act','btn-filtri-act')">⚙️ FILTRI</button>
+    </div>
+    <div class="active-filters-row" id="act-active-tags"></div>
+
+    <div class="cat-bar">
+      <span class="cat-bar-label">Scegli una categoria</span>
+      <button class="cat-tab active" onclick="setCat('tutte',this)">Tutte</button>
+      <button class="cat-tab" onclick="setCat('calmanti',this)">Calmanti</button>
+      <button class="cat-tab" onclick="setCat('cognitive',this)">Cognitive</button>
+      <button class="cat-tab" onclick="setCat('ludico',this)">Ludico</button>
+      <button class="cat-tab" onclick="setCat('collaborative',this)">Collaborative</button>
+      <button class="cat-tab" onclick="setCat('creative',this)">Creative</button>
+      <button class="cat-tab" onclick="setCat('motorie',this)">Motorie</button>
+    </div>
+
+    <div class="all-label" id="all-label">TUTTE LE ATTIVITÀ</div>
+    <div class="activities-grid" id="activities-grid"></div>
+  </div><!-- /attivita -->
+
+
+  <!-- ════════════ REPORT PAGE ════════════ -->
+  <div id="page-report" class="page">
+    <div class="topbar">
+      <div class="topbar-title">REPORT E SVILUPPO</div>
+      <div class="topbar-user">
+        <div class="user-info">
+          <div class="user-name">Benvenuta Chiara</div>
+          <div class="user-role">Insegnante · 16/06/2026</div>
+        </div>
+        <div style="width:38px;height:38px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid var(--blue);">👩‍🏫</div>
+      </div>
+    </div>
+    <div class="section-label">PANORAMICA CLASSE</div>
+
+    <div class="report-stats-row">
+      <div class="stat-card">
+        <div style="background:#e8f8f0;color:#5dbb40;font-size:26px;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✓</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:700;color:#333;">Nella Norma</div>
+          <div style="font-size:32px;font-weight:800;color:#5dbb40;line-height:1.1;">20</div>
+          <div style="margin-top:8px;">
+            <div style="height:6px;background:#e8f8f0;border-radius:3px;overflow:hidden;"><div style="height:100%;width:75%;background:#5dbb40;border-radius:3px;"></div></div>
+            <div style="font-size:11px;color:#888;margin-top:4px;text-align:right;">75% della classe</div>
+          </div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div style="background:#fdf8e1;color:#f5c642;font-size:26px;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">🔍</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:700;color:#333;">Da Osservare</div>
+          <div style="font-size:32px;font-weight:800;color:#f5c642;line-height:1.1;">3</div>
+          <div style="margin-top:8px;">
+            <div style="height:6px;background:#fdf8e1;border-radius:3px;overflow:hidden;"><div style="height:100%;width:15%;background:#f5c642;border-radius:3px;"></div></div>
+            <div style="font-size:11px;color:#888;margin-top:4px;text-align:right;">15% della classe</div>
+          </div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div style="background:#fdecea;color:#ff7b54;font-size:26px;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">⚠️</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:700;color:#333;">Da Approfondire</div>
+          <div style="font-size:32px;font-weight:800;color:#ff7b54;line-height:1.1;">1</div>
+          <div style="margin-top:8px;">
+            <div style="height:6px;background:#fdecea;border-radius:3px;overflow:hidden;"><div style="height:100%;width:5%;min-width:8px;background:#ff7b54;border-radius:3px;"></div></div>
+            <div style="font-size:11px;color:#888;margin-top:4px;text-align:right;">5% della classe</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="search-row" style="margin-top:10px;">
+      <input class="search-input" placeholder="Cerca un alunno" id="student-search" oninput="filterStudents()">
+      <button class="btn-filtri" id="btn-filtri-rep" onclick="toggleFilterPanel('filter-rep','btn-filtri-rep')">⚙️ FILTRI</button>
+    </div>
+    <div class="active-filters-row" id="rep-active-tags"></div>
+
+    <div class="report-area">
+      <div class="student-list">
+        <div class="student-list-header">
+          <span class="student-list-title">Elenco Alunni</span>
+          <span class="student-count" id="student-count-label">24 alunni</span>
+        </div>
+        <div style="display:flex;padding:4px 18px 10px;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;">
+          <span style="flex:1;margin-left:48px;">Nome</span><span>Stato</span>
+        </div>
+        <div id="student-list-body"></div>
+      </div>
+      <div class="student-detail" id="student-detail-panel">
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text-muted);gap:12px;">
+          <div style="font-size:48px;">👤</div>
+          <p style="font-size:15px;font-weight:600;">Seleziona un alunno per vedere i dettagli</p>
+        </div>
+      </div>
+    </div>
+  </div><!-- /report -->
+
+</main><!-- /main -->
+
+
+<!-- ─── CONFIRM MODAL ─── -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" style="position:relative;">
+    <div class="modal-header-bar" id="modal-header-bar"></div>
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-body">
+      <div class="modal-emoji" id="modal-emoji">🧩</div>
+      <div class="modal-cat" id="modal-cat">Calmanti</div>
+      <div class="modal-prompt">Vuoi avviare:</div>
+      <div class="modal-name" id="modal-name">Puzzle lento</div>
+      <div class="modal-details">
+        <div class="modal-detail-item">
+          <div class="modal-detail-num">👥 24</div>
+          <div class="modal-detail-unit">bambini</div>
+        </div>
+        <div class="modal-detail-sep"></div>
+        <div class="modal-detail-item">
+          <div class="modal-detail-num" id="modal-dur">⏱ 10 min</div>
+          <div class="modal-detail-unit">durata</div>
+        </div>
+      </div>
+      <p class="modal-note">L'attività verrà inviata su tutti i tavoli touch della classe.</p>
+      <div class="modal-divider"></div>
+      <div class="modal-actions">
+        <button class="btn-confirm" onclick="confirmActivity()">✓ Conferma</button>
+        <button class="btn-cancel" onclick="closeModal()">Annulla</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SUCCESS MODAL ─── -->
+<div class="modal-overlay" id="success-overlay">
+  <div class="modal">
+    <div class="modal-header-bar" style="background:var(--green);"></div>
+    <div class="modal-body">
+      <div class="success-icon">✓</div>
+      <div class="success-title">Attività avviata con successo!</div>
+      <div class="success-sub" id="success-sub">Puzzle lento è stata inviata a tutti i tavoli touch.</div>
+      <button class="btn-back-dash" onclick="closeSuccess()">Torna alla Dashboard</button>
+    </div>
+  </div>
+</div>
+
+
+
+<script src="js/script.js"></script>
+
+<!-- ─── FILTER PANEL: ATTIVITÀ (body-level, positioned via JS) ─── -->
+<div class="filter-panel-overlay" id="filter-act-overlay" onclick="closeAllPanels()"></div>
+<div class="filter-panel-fixed" id="filter-act">
+  <div class="filter-panel-title">
+    <span>Filtra Attività</span>
+    <button onclick="closeAllPanels()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-muted);line-height:1;">✕</button>
+  </div>
+  <div class="filter-section-label">Durata</div>
+  <div class="filter-chips">
+    <button class="filter-chip" data-filter="dur" data-val="short"  onclick="toggleChip(this,'act')">≤ 5 min</button>
+    <button class="filter-chip" data-filter="dur" data-val="medium" onclick="toggleChip(this,'act')">6–10 min</button>
+    <button class="filter-chip" data-filter="dur" data-val="long"   onclick="toggleChip(this,'act')">≥ 11 min</button>
+  </div>
+  <div class="filter-section-label">Categoria</div>
+  <div class="filter-chips">
+    <button class="filter-chip" data-filter="cat" data-val="calmanti"      onclick="toggleChip(this,'act')">Calmanti</button>
+    <button class="filter-chip" data-filter="cat" data-val="cognitive"     onclick="toggleChip(this,'act')">Cognitive</button>
+    <button class="filter-chip" data-filter="cat" data-val="creative"      onclick="toggleChip(this,'act')">Creative</button>
+    <button class="filter-chip" data-filter="cat" data-val="ludico"        onclick="toggleChip(this,'act')">Ludico</button>
+    <button class="filter-chip" data-filter="cat" data-val="collaborative" onclick="toggleChip(this,'act')">Collaborative</button>
+    <button class="filter-chip" data-filter="cat" data-val="motorie"       onclick="toggleChip(this,'act')">Motorie</button>
+  </div>
+  <div class="filter-panel-footer">
+    <button class="btn-filter-reset" onclick="resetFilters('act')">Azzera</button>
+    <button class="btn-filter-apply" onclick="applyFilters('act')">Applica filtri</button>
+  </div>
+</div>
+
+<!-- ─── FILTER PANEL: REPORT (body-level, positioned via JS) ─── -->
+<div class="filter-panel-overlay" id="filter-rep-overlay" onclick="closeAllPanels()"></div>
+<div class="filter-panel-fixed" id="filter-rep">
+  <div class="filter-panel-title">
+    <span>Filtra Alunni</span>
+    <button onclick="closeAllPanels()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-muted);line-height:1;">✕</button>
+  </div>
+  <div class="filter-section-label">Stato sviluppo</div>
+  <div class="filter-chips">
+    <button class="filter-chip" data-filter="status" data-val="norma"         onclick="toggleChip(this,'rep')">Nella norma</button>
+    <button class="filter-chip" data-filter="status" data-val="osservare"     onclick="toggleChip(this,'rep')">Da osservare</button>
+    <button class="filter-chip" data-filter="status" data-val="approfondire"  onclick="toggleChip(this,'rep')">Da approfondire</button>
+  </div>
+  <div class="filter-section-label">Trend attenzione</div>
+  <div class="filter-chips">
+    <button class="filter-chip" data-filter="trend" data-val="up"     onclick="toggleChip(this,'rep')">↑ In aumento</button>
+    <button class="filter-chip" data-filter="trend" data-val="stable" onclick="toggleChip(this,'rep')">→ Stabile</button>
+    <button class="filter-chip" data-filter="trend" data-val="down"   onclick="toggleChip(this,'rep')">↓ In calo</button>
+  </div>
+  <div class="filter-section-label">Sezione</div>
+  <div class="filter-chips">
+    <button class="filter-chip" data-filter="section" data-val="Sezione A" onclick="toggleChip(this,'rep')">Sezione A</button>
+    <button class="filter-chip" data-filter="section" data-val="Sezione B" onclick="toggleChip(this,'rep')">Sezione B</button>
+  </div>
+  <div class="filter-panel-footer">
+    <button class="btn-filter-reset" onclick="resetFilters('rep')">Azzera</button>
+    <button class="btn-filter-apply" onclick="applyFilters('rep')">Applica filtri</button>
+  </div>
+</div>
+</body>
+</html>
